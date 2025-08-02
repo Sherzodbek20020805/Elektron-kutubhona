@@ -95,7 +95,8 @@ model Borrowing {
   bookId    Int
   fromDate  DateTime
   toDate    DateTime
-  returned  Boolean  @default(false)
+  returned  DateTime?
+  status    BorrowingStatus @default(BORROWED)
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -148,4 +149,10 @@ enum Language {
   UZBEK
   ENGLISH
   RUSSIAN
+}
+
+enum BorrowingStatus {
+  BORROWED
+  RETURNED
+  OVERDUE
 }
