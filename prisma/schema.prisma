@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  email        String       @unique
+  password     String
+  fullName     String
+  isActive     Boolean      @default(true)
+  isVerified   Boolean      @default(false)
+  role         Role         @default(USER)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  otpCodes     UserOtp[]
+  reviews      Review[]
+  borrowings   Borrowing[]
+  refreshToken String?      // optional
+
+  @@map("users")
+}
+
+model UserOtp {
+  id        Int        @id @default(autoincrement())
+  userId    Int
+  code      String
+  status    OtpStatus  @default(SEND)
+  expiresAt DateTime
+  createdAt DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_otps")
+}
+
+model Author {
+  id        Int       @id @default(autoincrement())
+  fullName  String
+  books     Book[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("authors")
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  books     Book[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("categories")
+}
+
+model Book {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String
+  authorId    Int
+  categoryId  Int
+  language    Language     @default(UZBEK)
+  rating      Float        @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  images      BookImage[]
+  borrowings  Borrowing[]
+  reviews     Review[]
+
+  author   Author   @relation(fields: [authorId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@map("books")
+}
+
+model BookImage {
+  id        Int      @id @default(autoincrement())
+  bookId    Int
+  url       String
+  createdAt DateTime @default(now())
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@map("book_images")
+}
+
+model Borrowing {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  bookId    Int
+  fromDate  DateTime
+  toDate    DateTime
+  returned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@map("borrowings")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  bookId    Int
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+model File {
+  id        Int       @id @default(autoincrement())
+  url       String
+  type      FileType
+  createdAt DateTime  @default(now())
+
+  @@map("files")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum OtpStatus {
+  SEND
+  VERIFIED
+  EXPIRED
+}
+
+enum FileType {
+  IMAGE
+  PDF
+  DOC
+}
+
+enum Language {
+  UZBEK
+  ENGLISH
+  RUSSIAN
+}
