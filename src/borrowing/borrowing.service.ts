@@ -17,7 +17,7 @@ export class BorrowingService {
     where: {
       userId: dto.userId,
       bookId: dto.bookId,
-      status: 'BORROWED',
+      // status: 'BORROWED',
     },
   });
 
@@ -28,7 +28,7 @@ export class BorrowingService {
   return this.prisma.borrowing.create({
     data: {
       ...dto,
-      status: dto.status ?? 'BORROWED', 
+      // status: dto.status ?? 'BORROWED', 
     },
   });
 }
