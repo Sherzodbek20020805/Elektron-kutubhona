@@ -121,6 +121,7 @@ model Review {
 
 model File {
   id        Int       @id @default(autoincrement())
+  name      String
   url       String
   type      FileType
   createdAt DateTime  @default(now())
