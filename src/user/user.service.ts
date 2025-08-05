@@ -3,26 +3,49 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
+import { Role } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
-
-  async create(dto: CreateUserDto) {
+async create(dto: CreateUserDto) {
+  try {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
-    return this.prisma.user.create({
+
+    return await this.prisma.user.create({
       data: {
-        ...dto,
+        email: dto.email,
         password: hashedPassword,
+        fullName: dto.fullName,
+        role: dto.role ?? Role.USER,
       },
     });
+  } catch (error) {
+    // Prisma xatoliklarini ajratish
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        // Unique constraint error
+        throw new ConflictException('Bu email bilan foydalanuvchi allaqachon mavjud');
+      }
+
+      // Boshqa tanilgan prisma xatolari
+      throw new BadRequestException(`Prisma xatosi: ${error.message}`);
+    }
+
+    // Nomalum yoki ichki xatolik
+    throw new InternalServerErrorException('Serverda xatolik yuz berdi');
   }
+}
+
+
 
 findAll(query: {
   page?: string;

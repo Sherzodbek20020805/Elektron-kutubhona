@@ -15,17 +15,31 @@ export class AuthService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async register(dto: RegisterDto) {
-    const userExists = await this.prisma.user.findUnique({ where: { email: dto.email } });
-    if (userExists) throw new ConflictException('Bunday foydalanuvchi mavjud');
+ async register(dto: RegisterDto) {
+  const userExists = await this.prisma.user.findUnique({
+    where: { email: dto.email },
+  });
 
-    const hashed = await bcrypt.hash(dto.password, 10);
-    const user = await this.prisma.user.create({
-      data: { ...dto, password: hashed },
-    });
-
-    return { message: 'Ro‘yxatdan o‘tildi', userId: user.id };
+  if (userExists) {
+    throw new ConflictException('Bunday foydalanuvchi allaqachon mavjud');
   }
+
+  const hashed = await bcrypt.hash(dto.password, 10);
+
+  const user = await this.prisma.user.create({
+    data: {
+      email: dto.email,
+      password: hashed,
+      fullName: dto.full_name,
+    },
+  });
+
+  return {
+    message: 'Ro‘yxatdan muvaffaqiyatli o‘tildi',
+    userId: user.id,
+  };
+}
+
 
   async login(dto: LoginDto, res: Response) {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });

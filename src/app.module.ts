@@ -11,8 +11,13 @@ import {
   BookImageModule,
   BorrowingModule,
   ReviewModule,
-  FileModule
+  FileModule,
+  BookAuthorModule,
+  BookCategoryModule
+
 } from './index';
+
+
 
 
 @Module({
@@ -29,6 +34,8 @@ import {
     BorrowingModule,
     ReviewModule,
     FileModule,
+    BookAuthorModule,
+    BookCategoryModule,
   ],
 })
 export class AppModule {}

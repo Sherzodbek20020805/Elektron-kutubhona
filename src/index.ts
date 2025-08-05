@@ -8,3 +8,5 @@ export * from './book-image';
 export * from './borrowing';
 export * from './file';
 export * from './review';
+export * from './book-author';
+export * from './book-category';

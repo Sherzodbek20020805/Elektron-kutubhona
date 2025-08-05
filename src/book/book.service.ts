@@ -7,6 +7,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class BookService {
@@ -33,44 +34,74 @@ export class BookService {
   }
 
   async findAll(query: { search?: string; page?: string; limit?: string }) {
-    const { search, page = '1', limit = '10' } = query;
-    const pageNumber = parseInt(page);
-    const limitNumber = parseInt(limit);
-    const skip = (pageNumber - 1) * limitNumber;
-    if (isNaN(pageNumber) || pageNumber < 1) {
-      throw new BadRequestException('page noto‘g‘ri');
-    }
-    if (isNaN(limitNumber) || limitNumber < 1) {
-      throw new BadRequestException('limit noto‘g‘ri');
-    }
-    const result = await this.prisma.book.findMany({
-      where: search
-        ? { title: { contains: search, mode: 'insensitive' } }
-        : undefined,
-      skip,
-      take: parseInt(limit),
-      orderBy: { createdAt: 'desc' },
-      include: {
-        author: true,
-        category: true,
+  const { search, page = '1', limit = '10' } = query;
+  const pageNumber = parseInt(page);
+  const limitNumber = parseInt(limit);
+  const skip = (pageNumber - 1) * limitNumber;
+
+  if (isNaN(pageNumber) || pageNumber < 1) {
+    throw new BadRequestException('page noto‘g‘ri');
+  }
+  if (isNaN(limitNumber) || limitNumber < 1) {
+    throw new BadRequestException('limit noto‘g‘ri');
+  }
+
+  const whereClause: Prisma.BookWhereInput = search
+    ? {
+        title: {
+          contains: search,
+          mode: 'insensitive' as const,
+        },
+      }
+    : {};
+
+  const result = await this.prisma.book.findMany({
+    where: whereClause,
+    skip,
+    take: limitNumber,
+    orderBy: { createdAt: 'desc' },
+    include: {
+      bookAuthors: { include: { author: true } },
+      bookCategories: { include: { category: true } },
+    },
+  });
+
+  if (result.length === 0) {
+    throw new NotFoundException('Kitoblar topilmadi');
+  }
+
+  return result;
+}
+
+ async findOne(id: number) {
+  const book = await this.prisma.book.findUnique({
+    where: { id },
+    include: {
+      bookAuthors: {
+        include: {
+          author: true,
+        },
       },
-    });
-    if (result.length === 0) {
-      throw new NotFoundException('Kitoblar topilmadi');
-    }
-    return result;
-  }
+      bookCategories: {
+        include: {
+          category: true,
+        },
+      },
+      reviews: {
+        include: {
+          user: true,
+        },
+      },
+      images: true,
+      file: true,
+    },
+  });
 
-  async findOne(id: number) {
-    const book = await this.prisma.book.findUnique({
-      where: { id },
-      include: { author: true, category: true },
-    });
+  if (!book) throw new NotFoundException('Kitob topilmadi');
 
-    if (!book) throw new NotFoundException('Kitob topilmadi');
+  return book;
+}
 
-    return book;
-  }
 
   async update(id: number, dto: UpdateBookDto) {
     const exists = await this.prisma.book.findUnique({ where: { id } });
@@ -89,16 +120,17 @@ export class BookService {
     return this.prisma.book.update({ where: { id }, data: dto });
   }
 
- async remove(id: number) {
-  if (!Number.isInteger(id) || id <= 0) {
-    throw new BadRequestException('ID noto‘g‘ri');
-  }
+  async remove(id: number) {
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new BadRequestException('ID noto‘g‘ri');
+    }
 
-  const exists = await this.prisma.book.findUnique({ where: { id } });
-  if (!exists) {
-    throw new NotFoundException('Kitob topilmadi');
-  }
+    const exists = await this.prisma.book.findUnique({ where: { id } });
+    if (!exists) {
+      throw new NotFoundException('Kitob topilmadi');
+    }
 
-  await this.prisma.book.delete({ where: { id } });
-  return { message: 'Kitob muvaffaqiyatli o‘chirildi' };
-}}
+    await this.prisma.book.delete({ where: { id } });
+    return { message: 'Kitob muvaffaqiyatli o‘chirildi' };
+  }
+}
