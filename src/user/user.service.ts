@@ -17,31 +17,54 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateUserDto) {
-    try {
-      const hashedPassword = await bcrypt.hash(dto.password, 10);
+ async create(dto: CreateUserDto) {
+  try {
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-      return await this.prisma.user.create({
-        data: {
-          email: dto.email,
-          password: hashedPassword,
-          fullName: dto.fullName,
-          role: dto.role ?? Role.USER,
-        },
-      });
-    } catch (error) {
-      console.error('Foydalanuvchi yaratishda xatolik:', error);
+    return await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        password: hashedPassword,
+        fullName: dto.fullName,
+        role: dto.role ?? Role.USER,
+      },
+    });
+  } catch (error) {
+    console.error('Foydalanuvchi yaratishda xatolik:', error);
 
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ConflictException('Bu email bilan foydalanuvchi allaqachon mavjud');
-        }
-        throw new BadRequestException(`Prisma xatosi: ${error.message}`);
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        throw new ConflictException('Bu email bilan foydalanuvchi allaqachon mavjud');
       }
-
-      throw new InternalServerErrorException('Foydalanuvchi yaratishda ichki xatolik yuz berdi');
+      throw new BadRequestException(`Prisma xatosi: ${error.message}`);
     }
+
+    throw new InternalServerErrorException('Foydalanuvchi yaratishda ichki xatolik yuz berdi');
   }
+}
+
+
+async createAdminUser() {
+  const existing = await this.prisma.user.findFirst({
+    where: { role: Role.ADMIN },
+  });
+
+  if (existing) {
+    throw new ConflictException('Admin allaqachon mavjud');
+  }
+
+  const hashedPassword = await bcrypt.hash('admin123', 10);
+
+  return this.prisma.user.create({
+    data: {
+      email: 'admin2@example.com',
+      password: 'admin123',
+      fullName: 'Admin User',
+      role: Role.ADMIN,
+    }
+    ,
+  });
+}
 
   async findAll(query: {
     page?: string;

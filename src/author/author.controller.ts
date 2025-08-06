@@ -13,7 +13,9 @@ import {
 import { AuthorService } from './author.service';
 import { CreateAuthorDto } from './dto/create-author.dto';
 import { UpdateAuthorDto } from './dto/update-author.dto';
-import { JwtGuard,Roles, RolesGuard } from 'src/common';
+import { AccessTokenGuard, JwtGuard,Roles, RolesGuard } from 'src/common';
+import { ApiQuery } from '@nestjs/swagger';
+import { AuthorFilterDto } from './dto/author-filter.dto';
 
 @Controller('authors')
 export class AuthorController {
@@ -24,8 +26,13 @@ export class AuthorController {
     return this.service.create(dto);
   }
 
-  @Get()
-findAll(@Query() query: any) {
+@Get()
+// @Roles('ADMIN', 'USER')
+// @UseGuards(AccessTokenGuard, RolesGuard)
+@ApiQuery({ name: 'search', required: false, type: String })
+@ApiQuery({ name: 'page', required: false, type: String })
+@ApiQuery({ name: 'limit', required: false, type: String })
+findAll(@Query() query: AuthorFilterDto) {
   return this.service.findAll(query);
 }
 
@@ -43,8 +50,8 @@ findAll(@Query() query: any) {
     return this.service.update(id, dto);
   }
 
-  @UseGuards(JwtGuard, RolesGuard)
-  @Roles('ADMIN')
+  // @UseGuards(JwtGuard, RolesGuard)
+  // @Roles('ADMIN')
   @Delete(':id')
   remove(
     @Param('id', ParseIntPipe) id: number,

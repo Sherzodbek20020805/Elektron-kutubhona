@@ -20,7 +20,6 @@ export class CategoryService {
       throw new BadRequestException('Kategoriya nomi bo‘sh bo‘lmasligi kerak');
     }
 
-    // avval mavjudligini tekshiramiz
     const exists = await this.prisma.category.findFirst({
       where: { name: dto.name.trim() },
     });
@@ -52,7 +51,7 @@ export class CategoryService {
   async findAll(query: { search?: string; page?: string; limit?: string }) {
     try {
       let { search, page = '1', limit = '10' } = query;
-
+      
       const pageNumber = parseInt(page);
       const limitNumber = parseInt(limit);
 

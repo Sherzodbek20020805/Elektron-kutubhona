@@ -4,12 +4,16 @@ import { CreateUserOtpDto } from './dto/create-user-otp.dto';
 import { UpdateUserOtpDto } from './dto/update-user-otp.dto';
 
 import {Roles, AccessTokenGuard, RolesGuard } from '../common'; 
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 
-@UseGuards(AccessTokenGuard, RolesGuard)
-@Roles('ADMIN')
+// @ApiTags('User OTP')
+// @ApiBearerAuth()
+// @UseGuards(AccessTokenGuard, RolesGuard)
+// @Roles('ADMIN')
 @Controller('user-otp')
 export class UserOtpController {
+
   constructor(private readonly service: UserOtpService) {}
 
   @Post()

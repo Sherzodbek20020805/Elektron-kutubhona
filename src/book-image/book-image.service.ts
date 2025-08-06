@@ -21,6 +21,12 @@ export class BookImageService {
           bookId: dto.bookId,
         },
       });
+      if (!dto.url?.trim()) {
+        throw new BadRequestException('URL bo‘sh bo‘lishi mumkin emas');
+      }
+      if (!dto.bookId) {
+        throw new BadRequestException('Kitob ID majburiy');
+      }
 
       if (exists) {
         throw new ConflictException('Bunday rasm allaqachon mavjud');
@@ -28,7 +34,9 @@ export class BookImageService {
 
       return await this.prisma.bookImage.create({ data: dto });
     } catch (error) {
-      throw new InternalServerErrorException('Rasm yaratishda xatolik yuz berdi');
+      throw new InternalServerErrorException(
+        'Rasm yaratishda xatolik yuz berdi',
+      );
     }
   }
 
@@ -43,9 +51,13 @@ export class BookImageService {
         throw new NotFoundException('Rasmlar topilmadi');
       }
 
+  
+
       return images;
     } catch (error) {
-      throw new InternalServerErrorException('Rasmlar ro‘yxatini olishda xatolik yuz berdi');
+      throw new InternalServerErrorException(
+        'Rasmlar ro‘yxatini olishda xatolik yuz berdi',
+      );
     }
   }
 
@@ -62,7 +74,9 @@ export class BookImageService {
 
       return image;
     } catch (error) {
-      throw new InternalServerErrorException('Rasmni olishda xatolik yuz berdi');
+      throw new InternalServerErrorException(
+        'Rasmni olishda xatolik yuz berdi',
+      );
     }
   }
 
@@ -75,7 +89,9 @@ export class BookImageService {
 
       return await this.prisma.bookImage.update({ where: { id }, data: dto });
     } catch (error) {
-      throw new InternalServerErrorException('Rasmni yangilashda xatolik yuz berdi');
+      throw new InternalServerErrorException(
+        'Rasmni yangilashda xatolik yuz berdi',
+      );
     }
   }
 
@@ -89,7 +105,9 @@ export class BookImageService {
       await this.prisma.bookImage.delete({ where: { id } });
       return { message: 'Rasm o‘chirildi' };
     } catch (error) {
-      throw new InternalServerErrorException('Rasmni o‘chirishda xatolik yuz berdi');
+      throw new InternalServerErrorException(
+        'Rasmni o‘chirishda xatolik yuz berdi',
+      );
     }
   }
 }

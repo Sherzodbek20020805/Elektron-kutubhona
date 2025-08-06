@@ -26,24 +26,24 @@ export class CreateBorrowingDto {
   bookId: number;
 
   @ApiProperty({
-    example: '2025-08-06',
-    description: 'Kitobni olish sanasi (ISO formatda)',
+    example: '2025-08-06T00:00:00.000Z',
+    description: 'Kitobni olish sanasi (ISO 8601 formatda)',
   })
   @IsDateString()
   @IsNotEmpty()
-  fromDate: Date;
+  fromDate: string; // `string` bo'lishi kerak, chunki swagger `ISO` formatni string ko‘rinishida oladi
 
   @ApiProperty({
-    example: '2025-08-20',
-    description: 'Kitobni qaytarish sanasi (ISO formatda)',
+    example: '2025-08-20T00:00:00.000Z',
+    description: 'Kitobni qaytarish sanasi (ISO 8601 formatda)',
   })
   @IsDateString()
   @IsNotEmpty()
-  toDate: Date;
+  toDate: string;
 
   @ApiPropertyOptional({
     example: 'RETURNED',
-    description: 'Ijara statusi (BORROWED, RETURNED, LATE, ...)',
+    description: 'Ijara statusi (BORROWED, RETURNED, OVERDUE)',
     enum: BorrowingStatus,
   })
   @IsOptional()
@@ -51,10 +51,10 @@ export class CreateBorrowingDto {
   status?: BorrowingStatus;
 
   @ApiPropertyOptional({
-    example: '2025-08-19',
+    example: '2025-08-19T00:00:00.000Z',
     description: 'Kitob qaytarilgan sana (agar qaytarilgan bo‘lsa)',
   })
   @IsOptional()
   @IsDateString()
-  returnDate?: Date;
+  returned?: string;
 }

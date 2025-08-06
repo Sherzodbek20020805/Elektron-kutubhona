@@ -13,40 +13,50 @@ import {
 import { BookService } from './book.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { JwtGuard, Roles, RolesGuard } from 'src/common';
+import { AccessTokenGuard, JwtGuard, Roles, RolesGuard } from 'src/common';
+import { ApiQuery } from '@nestjs/swagger';
+import { FindAllBooksQueryDto } from './dto/get_dto';
 
 @Controller('books')
 export class BookController {
-  constructor(private readonly service: BookService) {}
+  constructor(private readonly bookService: BookService) {} 
 
-  @UseGuards(JwtGuard, RolesGuard)
-  @Roles('ADMIN', 'MANAGER')
+  // @UseGuards(JwtGuard, RolesGuard)
+  // @Roles('ADMIN', 'MANAGER')
   @Post()
   create(@Body() dto: CreateBookDto) {
-    return this.service.create(dto);
+    return this.bookService.create(dto);
   }
 
-  @Get()
-  findAll(@Query() query: any) {
-    return this.service.findAll(query);
-  }
+
+ @Get()
+findAll(@Query() query: FindAllBooksQueryDto) {
+  return this.bookService.findAll({
+    search: query.search,
+    page: query.page?.toString(),
+    limit: query.limit?.toString(),
+  });
+}
+
+
+
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findOne(id);
+    return this.bookService.findOne(id);
   }
 
-  @UseGuards(JwtGuard, RolesGuard)
-  @Roles('ADMIN', 'MANAGER')
+  // @UseGuards(JwtGuard, RolesGuard)
+  // @Roles('ADMIN', 'MANAGER')
   @Patch(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateBookDto) {
-    return this.service.update(id, dto);
+    return this.bookService.update(id, dto);
   }
 
-  @UseGuards(JwtGuard, RolesGuard)
-  @Roles('ADMIN')
+  // @UseGuards(JwtGuard, RolesGuard)
+  // @Roles('ADMIN')
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id);
+    return this.bookService.remove(id);
   }
 }

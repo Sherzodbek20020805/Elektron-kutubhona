@@ -35,10 +35,11 @@ export class CreateBookDto {
   categoryId: number;
 
   @ApiPropertyOptional({
-    example: 2020,
-    description: 'Nashr yili (ixtiyoriy)',
+    example: 'File URL',
+    description: 'Kitobning muqova rasmi URL manzili (ixtiyoriy)',
   })
-  @IsInt()
+  @IsString()
   @IsOptional()
-  year?: number;
+  fileId?: number;
+
 }

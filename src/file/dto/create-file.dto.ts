@@ -27,10 +27,5 @@ export class CreateFileDto {
   @IsEnum(FileType)
   type: FileType;
 
-  @ApiProperty({
-    example: 204800,
-    description: 'Fayl hajmi baytlarda (byte)',
-  })
-  @IsInt()
-  size: number;
+
 }

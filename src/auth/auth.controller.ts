@@ -24,18 +24,18 @@ export class AuthController {
     return this.authService.login(dto, res);
   }
 
-  @UseGuards(RefreshTokenGuard)
-  @Post('refresh')
-  refreshTokens(
-    @GetCurrentUserId() userId: number,
-    @GetCurrentUser('refreshToken') refreshToken: string,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    return this.authService.refreshTokens(userId, refreshToken, res);
-  }
+  // @UseGuards(RefreshTokenGuard)
+  // @Post('refresh')
+  // refreshTokens(
+  //   @GetCurrentUserId() userId: number,
+  //   @GetCurrentUser('refreshToken') refreshToken: string,
+  //   @Res({ passthrough: true }) res: Response,
+  // ) {
+  //   return this.authService.refreshTokens(userId, refreshToken, res);
+  // }
 
-  @Post('logout')
-  logout(@Res({ passthrough: true }) res: Response) {
-    return this.authService.logout(res);
-  }
+  // @Post('logout')
+  // logout(@Res({ passthrough: true }) res: Response) {
+  //   return this.authService.logout(res);
+  // }
 }

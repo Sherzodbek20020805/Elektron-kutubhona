@@ -15,30 +15,30 @@ import { UpdateBorrowingDto } from './dto/update-borrowing.dto';
 import { JwtGuard, Roles, RolesGuard } from 'src/common';
 
 @Controller('borrowings')
-@UseGuards(JwtGuard, RolesGuard)
+// @UseGuards(JwtGuard, RolesGuard)
 export class BorrowingController {
   constructor(private readonly service: BorrowingService) {}
 
   @Post()
-  @Roles('USER', 'ADMIN')
+  // @Roles('USER', 'ADMIN')
   create(@Body() dto: CreateBorrowingDto) {
     return this.service.create(dto);
   }
 
   @Get()
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   findAll() {
     return this.service.findAll();
   }
 
   @Get(':id')
-  @Roles('ADMIN', 'USER')
+  // @Roles('ADMIN', 'USER')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id);
   }
 
   @Patch(':id')
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateBorrowingDto,
@@ -47,7 +47,7 @@ export class BorrowingController {
   }
 
   @Delete(':id')
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
   }

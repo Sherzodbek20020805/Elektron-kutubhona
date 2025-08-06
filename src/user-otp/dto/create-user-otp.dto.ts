@@ -1,6 +1,13 @@
-import { IsEnum, IsInt, IsNotEmpty, IsString, IsDateString } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  IsDateString,
+} from 'class-validator';
 import { OtpStatus } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreateUserOtpDto {
   @ApiProperty({
@@ -15,6 +22,7 @@ export class CreateUserOtpDto {
     example: 1,
     description: 'Foydalanuvchi ID raqami (User jadvalidan)',
   })
+  @Type(() => Number)
   @IsInt()
   userId: number;
 

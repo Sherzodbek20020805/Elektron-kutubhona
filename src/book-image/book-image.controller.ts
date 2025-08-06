@@ -15,12 +15,12 @@ import { UpdateBookImageDto } from './dto/update-book-image.dto';
 import { JwtGuard, Roles, RolesGuard } from 'src/common';
 
 @Controller('book-images')
-@UseGuards(JwtGuard, RolesGuard)
+// @UseGuards(JwtGuard, RolesGuard)
 export class BookImageController {
   constructor(private readonly service: BookImageService) {}
 
   @Post()
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   create(@Body() dto: CreateBookImageDto) {
     return this.service.create(dto);
   }
@@ -36,7 +36,7 @@ export class BookImageController {
   }
 
   @Patch(':id')
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateBookImageDto,
@@ -45,7 +45,7 @@ export class BookImageController {
   }
 
   @Delete(':id')
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
   }

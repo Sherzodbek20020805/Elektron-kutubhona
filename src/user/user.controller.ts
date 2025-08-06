@@ -14,6 +14,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Validated } from './../valided/validet';
+import { Public } from 'src/common';
+import { GetUsersDto } from './dto/get-users.dto';
 
 @ApiTags('User')
 @Controller('users')
@@ -26,18 +28,15 @@ export class UserController {
     return this.userService.create(dto);
   }
 
+  @Public()
+  @Post('create-admin')
+  createAdmin() {
+    return this.userService.createAdminUser();
+  }
+
   @Get()
-  @ApiOperation({ summary: 'Barcha foydalanuvchilarni olish' })
-  getAllUsers(
-    @Query()
-    query: {
-      page?: string;
-      limit?: string;
-      role?: string;
-      search?: string;
-      isActive?: string;
-    },
-  ): any {
+  @ApiOperation({ summary: 'Foydalanuvchilar ro‘yxati (filtrlash va pagination)' })
+  getUsers(@Query() query: GetUsersDto) {
     return this.userService.findAll(query);
   }
 

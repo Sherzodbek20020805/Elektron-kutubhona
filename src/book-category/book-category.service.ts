@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   InternalServerErrorException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBookCategoryDto } from './dto/create-book-category.dto';
@@ -16,28 +17,55 @@ export class BookCategoryService {
     private readonly common: CommonService,
   ) {}
 
-  async create(dto: CreateBookCategoryDto, lang = 'uz') {
-    try {
-      const exists = await this.prisma.bookCategory.findUnique({
-        where: {
-          bookId_categoryId: {
-            bookId: dto.bookId,
-            categoryId: dto.categoryId,
-          },
-        },
-      });
-
-      if (exists) {
-        throw new ConflictException(this.common.translate('bookCategory.exists', lang));
-      }
-
-      return await this.prisma.bookCategory.create({ data: dto });
-    } catch (error) {
-      throw new InternalServerErrorException(
-        this.common.translate('bookCategory.create_error', lang),
+ async create(dto: CreateBookCategoryDto, lang = 'uz') {
+  try {
+    
+    if (!dto.bookId || !dto.categoryId) {
+      throw new BadRequestException(
+        this.common.translate('bookCategory.missing_ids', lang),
       );
     }
+
+    if (
+      typeof dto.bookId !== 'number' ||
+      typeof dto.categoryId !== 'number'
+    ) {
+      throw new BadRequestException(
+        this.common.translate('bookCategory.invalid_ids', lang),
+      );
+    }
+
+    if (dto.bookId === dto.categoryId) {
+      throw new BadRequestException(
+        this.common.translate('bookCategory.invalid_ids', lang),
+      );
+    }
+
+    const exists = await this.prisma.bookCategory.findUnique({
+      where: {
+        bookId_categoryId: {
+          bookId: dto.bookId,
+          categoryId: dto.categoryId,
+        },
+      },
+    });
+
+    if (exists) {
+      console.log('⏪ Allaqachon mavjud bog‘lanish:', exists);
+      return exists;
+    }
+
+    const created = await this.prisma.bookCategory.create({ data: dto });
+    console.log('✅ Yangi bog‘lanish yaratildi:', created);
+    return created;
+
+  } catch (error) {
+    console.error('Kitob-kategoriya yaratishda xatolik:', error);
+    throw new InternalServerErrorException(
+      this.common.translate('bookCategory.create_error', lang),
+    );
   }
+}
 
   async findAll() {
     try {
@@ -48,16 +76,22 @@ export class BookCategoryService {
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException('Kitob-kategoriya ro‘yxatini olishda xatolik');
+      throw new InternalServerErrorException(
+        'Kitob-kategoriya ro‘yxatini olishda xatolik',
+      );
     }
   }
 
   async findOne(id: number, lang = 'uz') {
     try {
-      const bookCategory = await this.prisma.bookCategory.findUnique({ where: { id } });
+      const bookCategory = await this.prisma.bookCategory.findUnique({
+        where: { id },
+      });
 
       if (!bookCategory) {
-        throw new NotFoundException(this.common.translate('bookCategory.not_found', lang));
+        throw new NotFoundException(
+          this.common.translate('bookCategory.not_found', lang),
+        );
       }
 
       return bookCategory;
@@ -70,10 +104,14 @@ export class BookCategoryService {
 
   async update(id: number, dto: UpdateBookCategoryDto, lang = 'uz') {
     try {
-      const exists = await this.prisma.bookCategory.findUnique({ where: { id } });
+      const exists = await this.prisma.bookCategory.findUnique({
+        where: { id },
+      });
 
       if (!exists) {
-        throw new NotFoundException(this.common.translate('bookCategory.not_found', lang));
+        throw new NotFoundException(
+          this.common.translate('bookCategory.not_found', lang),
+        );
       }
 
       return await this.prisma.bookCategory.update({
@@ -89,10 +127,14 @@ export class BookCategoryService {
 
   async remove(id: number, lang = 'uz') {
     try {
-      const exists = await this.prisma.bookCategory.findUnique({ where: { id } });
+      const exists = await this.prisma.bookCategory.findUnique({
+        where: { id },
+      });
 
       if (!exists) {
-        throw new NotFoundException(this.common.translate('bookCategory.not_found', lang));
+        throw new NotFoundException(
+          this.common.translate('bookCategory.not_found', lang),
+        );
       }
 
       await this.prisma.bookCategory.delete({ where: { id } });

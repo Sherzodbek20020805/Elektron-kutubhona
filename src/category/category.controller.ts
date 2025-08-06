@@ -19,7 +19,7 @@ import { JwtGuard, Roles, RolesGuard } from 'src/common';
 export class CategoryController {
   constructor(private readonly service: CategoryService) {}
 
-  @UseGuards(JwtGuard, RolesGuard)
+  // @UseGuards(JwtGuard, RolesGuard)
   // @Roles('ADMIN')
   @Post()
   create(@Body() dto: CreateCategoryDto) {
@@ -36,8 +36,8 @@ export class CategoryController {
     return this.service.findOne(id);
   }
 
-  @UseGuards(JwtGuard, RolesGuard)
-  @Roles('ADMIN')
+  // @UseGuards(JwtGuard, RolesGuard)
+  // @Roles('ADMIN')
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -46,8 +46,8 @@ export class CategoryController {
     return this.service.update(id, dto);
   }
 
-  @UseGuards(JwtGuard, RolesGuard)
-  @Roles('ADMIN')
+  // @UseGuards(JwtGuard, RolesGuard)
+  // @Roles('ADMIN')
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);

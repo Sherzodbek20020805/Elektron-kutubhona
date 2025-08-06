@@ -88,21 +88,21 @@ export class AuthorService {
       throw new InternalServerErrorException('Mualliflarni olishda xatolik yuz berdi');
     }
   }
-
-  async findOne(id: number) {
-    if (isNaN(id)) {
-      throw new BadRequestException('ID noto‘g‘ri formatda');
-    }
-
-    try {
-      const author = await this.prisma.author.findUnique({ where: { id } });
-      if (!author) throw new NotFoundException('Muallif topilmadi');
-      return author;
-    } catch (error) {
-      console.error('Author findOne error:', error);
-      throw new InternalServerErrorException('Muallifni olishda xatolik yuz berdi');
-    }
+async findOne(id: number) {
+  if (isNaN(id)) {
+    throw new BadRequestException('ID noto‘g‘ri formatda');
   }
+
+  try {
+    const author = await this.prisma.author.findUnique({ where: { id } });
+    if (!author) throw new NotFoundException('Muallif topilmadi');
+    return author;
+  } catch (error) {
+    console.error('Author findOne error:', error);
+    throw new InternalServerErrorException('Muallifni olishda xatolik yuz berdi');
+  }
+}
+
 
   async update(id: number, dto: UpdateAuthorDto) {
     if (isNaN(id)) {
@@ -138,9 +138,9 @@ export class AuthorService {
       throw new BadRequestException('ID noto‘g‘ri formatda');
     }
 
-    if (currentUser.role !== 'ADMIN') {
-      throw new ForbiddenException('Sizda bu amalni bajarishga ruxsat yo‘q');
-    }
+    // if (currentUser.role !== 'ADMIN') {
+    //   throw new ForbiddenException('Sizda bu amalni bajarishga ruxsat yo‘q');
+    // }
 
     try {
       const exists = await this.prisma.author.findUnique({ where: { id } });
