@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBookImageDto } from './dto/create-book-image.dto';
@@ -13,52 +14,82 @@ export class BookImageService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateBookImageDto) {
-    const exists = await this.prisma.bookImage.findFirst({
-      where: {
-        url: dto.url,
-        bookId: dto.bookId,
-      },
-    });
-    if (exists) throw new ConflictException('Bunday rasm allaqachon mavjud');
+    try {
+      const exists = await this.prisma.bookImage.findFirst({
+        where: {
+          url: dto.url,
+          bookId: dto.bookId,
+        },
+      });
 
-    return this.prisma.bookImage.create({ data: dto });
+      if (exists) {
+        throw new ConflictException('Bunday rasm allaqachon mavjud');
+      }
+
+      return await this.prisma.bookImage.create({ data: dto });
+    } catch (error) {
+      throw new InternalServerErrorException('Rasm yaratishda xatolik yuz berdi');
+    }
   }
 
   async findAll() {
-    const images = await this.prisma.bookImage.findMany({
-      include: { book: true },
-      orderBy: { createdAt: 'desc' },
-    });
+    try {
+      const images = await this.prisma.bookImage.findMany({
+        include: { book: true },
+        orderBy: { createdAt: 'desc' },
+      });
 
-    if (images.length === 0) {
-      throw new NotFoundException('Rasmlar topilmadi');
+      if (images.length === 0) {
+        throw new NotFoundException('Rasmlar topilmadi');
+      }
+
+      return images;
+    } catch (error) {
+      throw new InternalServerErrorException('Rasmlar ro‘yxatini olishda xatolik yuz berdi');
     }
-
-    return images;
   }
 
   async findOne(id: number) {
-    const image = await this.prisma.bookImage.findUnique({
-      where: { id },
-      include: { book: true },
-    });
+    try {
+      const image = await this.prisma.bookImage.findUnique({
+        where: { id },
+        include: { book: true },
+      });
 
-    if (!image) throw new NotFoundException('Rasm topilmadi');
-    return image;
+      if (!image) {
+        throw new NotFoundException('Rasm topilmadi');
+      }
+
+      return image;
+    } catch (error) {
+      throw new InternalServerErrorException('Rasmni olishda xatolik yuz berdi');
+    }
   }
 
   async update(id: number, dto: UpdateBookImageDto) {
-    const exists = await this.prisma.bookImage.findUnique({ where: { id } });
-    if (!exists) throw new NotFoundException('Rasm topilmadi');
+    try {
+      const exists = await this.prisma.bookImage.findUnique({ where: { id } });
+      if (!exists) {
+        throw new NotFoundException('Rasm topilmadi');
+      }
 
-    return this.prisma.bookImage.update({ where: { id }, data: dto });
+      return await this.prisma.bookImage.update({ where: { id }, data: dto });
+    } catch (error) {
+      throw new InternalServerErrorException('Rasmni yangilashda xatolik yuz berdi');
+    }
   }
 
   async remove(id: number) {
-    const exists = await this.prisma.bookImage.findUnique({ where: { id } });
-    if (!exists) throw new NotFoundException('Rasm topilmadi');
+    try {
+      const exists = await this.prisma.bookImage.findUnique({ where: { id } });
+      if (!exists) {
+        throw new NotFoundException('Rasm topilmadi');
+      }
 
-    await this.prisma.bookImage.delete({ where: { id } });
-    return { message: 'Rasm o‘chirildi' };
+      await this.prisma.bookImage.delete({ where: { id } });
+      return { message: 'Rasm o‘chirildi' };
+    } catch (error) {
+      throw new InternalServerErrorException('Rasmni o‘chirishda xatolik yuz berdi');
+    }
   }
 }

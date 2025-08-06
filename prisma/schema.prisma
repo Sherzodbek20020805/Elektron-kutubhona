@@ -42,6 +42,7 @@ model UserOtp {
 model Author {
   id           Int           @id @default(autoincrement())
   fullName     String
+    bio          String?   
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 

@@ -20,7 +20,7 @@ export class CategoryController {
   constructor(private readonly service: CategoryService) {}
 
   @UseGuards(JwtGuard, RolesGuard)
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   @Post()
   create(@Body() dto: CreateCategoryDto) {
     return this.service.create(dto);

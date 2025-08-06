@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBookAuthorDto } from './dto/create-book-author.dto';
 import { UpdateBookAuthorDto } from './dto/update-book-author.dto';
@@ -7,32 +12,56 @@ import { UpdateBookAuthorDto } from './dto/update-book-author.dto';
 export class BookAuthorService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(dto: CreateBookAuthorDto) {
-    return this.prisma.bookAuthor.create({ data: dto });
+  async create(dto: CreateBookAuthorDto) {
+    try {
+      return await this.prisma.bookAuthor.create({ data: dto });
+    } catch (error) {
+      throw new InternalServerErrorException('Kitob-muallif yaratishda xatolik');
+    }
   }
 
-  findAll() {
-    return this.prisma.bookAuthor.findMany({
-      include: {
-        book: true,
-        author: true,
-      },
-    });
+  async findAll() {
+    try {
+      return await this.prisma.bookAuthor.findMany({
+        include: {
+          book: true,
+          author: true,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Kitob-mualliflar ro‘yxatini olishda xatolik');
+    }
   }
 
   async findOne(id: number) {
-    const bookAuthor = await this.prisma.bookAuthor.findUnique({ where: { id } });
-    if (!bookAuthor) throw new NotFoundException('Ushbu kitob-muallif topilmadi');
-    return bookAuthor;
+    try {
+      const bookAuthor = await this.prisma.bookAuthor.findUnique({ where: { id } });
+      if (!bookAuthor) throw new NotFoundException('Ushbu kitob-muallif topilmadi');
+      return bookAuthor;
+    } catch (error) {
+      throw new InternalServerErrorException('Kitob-muallifni olishda xatolik');
+    }
   }
 
   async update(id: number, dto: UpdateBookAuthorDto) {
-    await this.findOne(id);
-    return this.prisma.bookAuthor.update({ where: { id }, data: dto });
+    try {
+      await this.findOne(id);
+      return await this.prisma.bookAuthor.update({
+        where: { id },
+        data: dto,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Kitob-muallifni yangilashda xatolik');
+    }
   }
 
   async remove(id: number) {
-    await this.findOne(id);
-    return this.prisma.bookAuthor.delete({ where: { id } });
+    try {
+      await this.findOne(id);
+      await this.prisma.bookAuthor.delete({ where: { id } });
+      return { message: 'Kitob-muallif muvaffaqiyatli o‘chirildi' };
+    } catch (error) {
+      throw new InternalServerErrorException('Kitob-muallifni o‘chirishda xatolik');
+    }
   }
 }
