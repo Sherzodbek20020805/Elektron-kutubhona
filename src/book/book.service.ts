@@ -67,6 +67,9 @@ async create(dto: CreateBookDto) {
       data: book,
     };
   } catch (error) {
+    if (error instanceof ConflictException || error instanceof BadRequestException) {
+      throw error;
+    }
     console.error('Kitob yaratishda xatolik:', error);
     throw new InternalServerErrorException(
       error?.message || 'Kitobni yaratishda xatolik yuz berdi',

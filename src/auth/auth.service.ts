@@ -68,12 +68,12 @@ export class AuthService {
     const activation_link = uuidv4();
     const newUser = await this.prismaService.user.create({
       data: {
-    email,
-    fullName,
-    password: hashedPassword, 
-    role: 'ADMIN',
-    activation_link,
-  },
+        email,
+        fullName,
+        password: hashedPassword, 
+        role: role ?? 'USER',
+        activation_link,
+      },
     });
     try {
       await this.mailService.sendMail(newUser);
@@ -90,43 +90,39 @@ export class AuthService {
   }
 
   async signIn(signInUserDto: SigninUserDto, res: Response) {
-  const { email, password, confirm_password } = signInUserDto;
-  const user = await this.prismaService.user.findUnique({ where: { email } });
+    const { email, password } = signInUserDto;
+    const user = await this.prismaService.user.findUnique({ where: { email } });
 
-  if (!user) {
-    throw new UnauthorizedException('Bunday foydalanuvchi mavjud emas');
+    if (!user) {
+      throw new UnauthorizedException('Bunday foydalanuvchi mavjud emas');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('Email yoki parol noto‘g‘ri');
+    }
+
+    const { accessToken, refreshToken } = await this.generateTokens(user);
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 12);
+
+    await this.prismaService.user.update({
+      where: { id: user.id },
+      data: { refreshToken: hashedRefreshToken },
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      maxAge: Number(process.env.COOKIE_TIME) || 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    return {
+      message: 'Foydalanuvchi tizimga kirdi',
+      userId: user.id,
+      accessToken,
+    };
   }
-
-  if (password !== confirm_password) {
-    throw new BadRequestException('Parollar mos emas');
-  }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    throw new UnauthorizedException('Email yoki parol noto‘g‘ri');
-  }
-
-  const { accessToken, refreshToken } = await this.generateTokens(user);
-  const hashedRefreshToken = await bcrypt.hash(refreshToken, 12);
-
-  await this.prismaService.user.update({
-    where: { id: user.id },
-    data: { refreshToken: hashedRefreshToken },
-  });
-
-  res.cookie('refreshToken', refreshToken, {
-    maxAge: Number(process.env.COOKIE_TIME) || 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-  });
-
-  return {
-    message: 'Foydalanuvchi tizimga kirdi',
-    userId: user.id,
-    accessToken,
-  };
-}
 
   async signOut(refreshToken: string, res: Response) {
     try {

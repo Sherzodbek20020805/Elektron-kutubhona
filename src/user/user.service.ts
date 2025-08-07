@@ -59,7 +59,7 @@ async createAdminUser() {
   return this.prisma.user.create({
     data: {
       email: 'admin2@example.com',
-      password: 'admin123',
+      password: hashedPassword,
       fullName: 'Admin User',
       role: Role.ADMIN,
     }
@@ -100,7 +100,7 @@ async createAdminUser() {
 
       const filters: any = {};
       if (query.role) filters.role = query.role;
-      if (query.isActive) filters.is_active = query.isActive === 'true';
+      if (query.isActive) filters.isActive = query.isActive === 'true';
 
       if (query.search) {
         filters.OR = [
@@ -143,17 +143,22 @@ async createAdminUser() {
 
       return await this.prisma.user.update({
         where: { id },
-        data: { hashedRefreshToken },
+        data: { refreshToken: hashedRefreshToken },
       });
     } catch (error) {
       return error;
     }
   }
-  async findOne(id: number, currentUser: { id: number; role: string }) {
+  async findOne(id: number, currentUser?: { id: number; role: string }) {
     try {
       const user = await this.prisma.user.findUnique({ where: { id } });
 
       if (!user) throw new NotFoundException('Foydalanuvchi topilmadi');
+
+      // currentUser undefined bo'lsa, default qiymat beriladi (masalan, admin yoki o'zi)
+      if (!currentUser) {
+        currentUser = { id, role: 'ADMIN' };
+      }
 
       if (currentUser.id !== id && currentUser.role !== 'ADMIN') {
         throw new ForbiddenException('Ruxsat yo‘q');

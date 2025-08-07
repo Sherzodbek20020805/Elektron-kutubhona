@@ -31,16 +31,16 @@ export class AuthorService {
       },
     });
   } catch (error) {
+    if (error instanceof ConflictException || error instanceof BadRequestException) {
+      throw error;
+    }
     if (error.code === 'P2002') {
       throw new ConflictException('Ushbu muallif allaqachon mavjud');
     }
-
     if (error.name === 'PrismaClientValidationError') {
       throw new BadRequestException('Yuborilgan ma’lumotlar noto‘g‘ri');
     }
-
     console.error('Author create error:', error);
-
     throw new InternalServerErrorException('Muallif yaratishda xatolik yuz berdi');
   }
 }

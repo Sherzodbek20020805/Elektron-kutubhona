@@ -4,7 +4,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import {
   AuthModule,
   UserModule,
-  // UserOtpModule,
+  UserOtpModule,
   AuthorModule,
   CategoryModule,
   BookModule,
@@ -26,7 +26,7 @@ import {
     PrismaModule,
     AuthModule,
     UserModule,
-    // UserOtpModule,
+    UserOtpModule,
     AuthorModule,
     CategoryModule,
     BookModule,

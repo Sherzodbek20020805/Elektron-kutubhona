@@ -27,9 +27,9 @@ export class CreateUserOtpDto {
   userId: number;
 
   @ApiProperty({
-    example: 'ACTIVE',
+    example: 'SEND',
     enum: OtpStatus,
-    description: 'OTP holati (ACTIVE, VERIFIED, EXPIRED)',
+    description: 'OTP holati (SEND, VERIFIED, EXPIRED)',
   })
   @IsEnum(OtpStatus)
   status: OtpStatus;

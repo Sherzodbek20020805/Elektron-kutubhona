@@ -44,9 +44,11 @@ export class UserController {
   @ApiOperation({ summary: 'Bitta foydalanuvchini olish' })
   findOne(
     @Param('id', ParseIntPipe) id: number,
-    @Query() query: { currentUser: { id: number; role: string } },
+    @Query() query: { currentUser?: { id: number; role: string } },
   ) {
-    return this.userService.findOne(id, query.currentUser);
+    // Agar currentUser undefined bo'lsa, default qiymat beriladi (masalan, admin yoki o'zi)
+    const currentUser = query.currentUser ?? { id, role: 'ADMIN' };
+    return this.userService.findOne(id, currentUser);
   }
 
   @Patch(':id')

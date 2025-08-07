@@ -21,7 +21,9 @@ export class UserOtpService {
 
   async create(dto: CreateUserOtpDto) {
     try {
-      
+      if (!dto.code || dto.code.length !== 6) {
+        throw new BadRequestException('OTP kodi 6 ta belgidan iborat bo‘lishi kerak');
+      }
       const user = await this.prisma.user.findUnique({
         where: { id: dto.userId },
       });
@@ -67,11 +69,6 @@ export class UserOtpService {
   async findAll() {
     try {
       const otps = await this.prisma.userOtp.findMany();
-
-      if (!otps.length) {
-        throw new NotFoundException('Hech qanday OTP topilmadi');
-      }
-
       return otps;
     } catch (error) {
       console.error('OTPlarni olishda xatolik:', error);

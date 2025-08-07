@@ -18,6 +18,16 @@ export class BorrowingService {
 
  async create(dto: CreateBorrowingDto) {
   try {
+    // Yangi validatsiya: user va book mavjudligini tekshirish
+    const user = await this.prisma.user.findUnique({ where: { id: dto.userId } });
+    if (!user) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+    const book = await this.prisma.book.findUnique({ where: { id: dto.bookId } });
+    if (!book) {
+      throw new NotFoundException('Kitob topilmadi');
+    }
+
     const exists = await this.prisma.borrowing.findFirst({
       where: {
         userId: dto.userId,
