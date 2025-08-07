@@ -2,6 +2,8 @@ import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'cl
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 
+
+
 export class CreateUserDto {
   @ApiProperty({
     example: 'example@gmail.com',

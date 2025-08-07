@@ -8,31 +8,34 @@ datasource db {
 }
 
 model User {
-  id           Int          @id @default(autoincrement())
-  email        String       @unique
-  password     String
-  fullName     String
-  isActive     Boolean      @default(true)
-  isVerified   Boolean      @default(false)
-  role         Role         @default(USER)
-  refreshToken String?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id              Int      @id @default(autoincrement())
+  email           String   @unique
+  password        String
+  fullName        String
+  isActive        Boolean  @default(true)
+  isVerified      Boolean  @default(false)
+  role            Role     @default(USER)
+  activation_link String?  @unique @db.VarChar(255)
+  refreshToken    String?
+  resetPasswordToken       String?   @db.Text
+  resetPasswordTokenExpiry DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  otpCodes     UserOtp[]
-  reviews      Review[]
-  borrowings   Borrowing[]
+  otpCodes   UserOtp[]
+  reviews    Review[]
+  borrowings Borrowing[]
 
   @@map("users")
 }
 
 model UserOtp {
-  id        Int        @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   userId    Int
   code      String
-  status    OtpStatus  @default(SEND)
+  status    OtpStatus @default(SEND)
   expiresAt DateTime
-  createdAt DateTime   @default(now())
+  createdAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -40,44 +43,44 @@ model UserOtp {
 }
 
 model Author {
-  id           Int           @id @default(autoincrement())
-  fullName     String
-    bio          String?   
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  bio       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  bookAuthors  BookAuthor[]
+  bookAuthors BookAuthor[]
 
   @@map("authors")
 }
 
 model Category {
-  id              Int             @id @default(autoincrement())
-  name            String
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  bookCategories  BookCategory[]
+  bookCategories BookCategory[]
 
   @@map("categories")
 }
 
 model Book {
-  id              Int             @id @default(autoincrement())
-  title           String
-  description     String
-  language        Language        @default(UZBEK)
-  rating          Float           @default(0)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  language    Language @default(UZBEK)
+  rating      Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  borrowings      Borrowing[]
-  reviews         Review[]
-  bookAuthors     BookAuthor[]
-  bookCategories  BookCategory[]
-  images          BookImage[]
-  file            File?           @relation("BookPDF", fields: [fileId], references: [id])
-  fileId          Int?            @unique
+  borrowings     Borrowing[]
+  reviews        Review[]
+  bookAuthors    BookAuthor[]
+  bookCategories BookCategory[]
+  images         BookImage[]
+  file           File?          @relation("BookPDF", fields: [fileId], references: [id])
+  fileId         Int?           @unique
 
   @@map("books")
 }
@@ -96,7 +99,7 @@ model BookAuthor {
 }
 
 model BookCategory {
-  id         Int      @id @default(autoincrement())
+  id         Int @id @default(autoincrement())
   bookId     Int
   categoryId Int
 
@@ -125,20 +128,20 @@ model File {
   type      FileType
   createdAt DateTime @default(now())
 
-  book      Book?    @relation("BookPDF")
+  book Book? @relation("BookPDF")
 
   @@map("files")
 }
 
 model Borrowing {
-  id        Int              @id @default(autoincrement())
+  id        Int             @id @default(autoincrement())
   userId    Int
   bookId    Int
   fromDate  DateTime
   toDate    DateTime
   returned  DateTime?
-  status    BorrowingStatus  @default(BORROWED)
-  createdAt DateTime         @default(now())
+  status    BorrowingStatus @default(BORROWED)
+  createdAt DateTime        @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)

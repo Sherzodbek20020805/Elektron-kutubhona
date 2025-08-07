@@ -23,5 +23,5 @@ export class RegisterDto {
     description: 'Foydalanuvchining to‘liq ismi',
   })
   @IsNotEmpty()
-  full_name: string;
+  fullName: string;
 }

@@ -13,6 +13,7 @@ import * as bcrypt from 'bcrypt';
 import { Role } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
+
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
@@ -132,6 +133,22 @@ async createAdminUser() {
     }
   }
 
+  
+  async updateRefreshToken(id: number, hashedRefreshToken: string) {
+    try {
+      const user = await this.prisma.user.findUnique({ where: { id } });
+      if (!user) {
+        throw new BadRequestException('Foydalanuvchi topilmadi');
+      }
+
+      return await this.prisma.user.update({
+        where: { id },
+        data: { hashedRefreshToken },
+      });
+    } catch (error) {
+      return error;
+    }
+  }
   async findOne(id: number, currentUser: { id: number; role: string }) {
     try {
       const user = await this.prisma.user.findUnique({ where: { id } });
