@@ -111,7 +111,7 @@ export class AuthService {
 
   await this.prismaService.user.update({
     where: { id: user.id },
-    data: { refreshToken: hashedRefreshToken }, // 💡 hashedRefreshToken maydoni nomini modelga moslashtiring
+    data: { refreshToken: hashedRefreshToken },
   });
 
   res.cookie('refreshToken', refreshToken, {

@@ -28,13 +28,13 @@ import { JwtGuard } from '../common/guards/jwt.guard';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // Foydalanuvchini ro'yxatdan o'tkazish
+  
   @Post('signUp')
   signUp(@Body() createUserDto: CreateUserDto) {
     return this.authService.signUp(createUserDto);
   }
 
-  // Tizimga kirish
+  
   @HttpCode(200)
   @Post('signIn')
   signIn(
@@ -44,7 +44,7 @@ export class AuthController {
     return this.authService.signIn(signInUserDto, res);
   }
 
-  // Tizimdan chiqish
+  
   @HttpCode(200)
   @Post('signOut')
   signOut(
@@ -54,7 +54,7 @@ export class AuthController {
     return this.authService.signOut(refreshToken, res);
   }
 
-  // Tokenni yangilash
+ 
   @Post('refresh')
 @Public()
 @UseGuards(RefreshTokenGuard)
@@ -67,13 +67,12 @@ async refreshTokens(
 }
 
 
-  // Parolni tiklash (kodni tekshirib, yangi parol o'rnatish)
+  
   @Post('reset-password')
   resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPasswordWithConfirm(dto);
   }
 
-  // Parolni unutgan foydalanuvchiga tiklash havolasini yuborish
   @Post('forgot-password')
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.sendResetPasswordToken(dto.email);
